@@ -113,4 +113,4 @@ The demo demonstrates:
 7. Completing checkout
 8. Clearing the cart after checkout
 
-Built with Flutter and Dart.
+Built with Flutter and Dart for the AfaaqWare Flutter assignment.

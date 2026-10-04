@@ -112,3 +112,5 @@ The demo demonstrates:
 6. Viewing the total
 7. Completing checkout
 8. Clearing the cart after checkout
+
+Built with Flutter and Dart.

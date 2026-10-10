@@ -1,94 +1,128 @@
 # Mini E-Commerce App
 
-A simple Flutter mini e-commerce application built as a technical assignment.
+A simple Flutter mini e-commerce application built as a technical assignment for AfaaqWare.
 
-The app includes a mock login flow, product browsing, cart management, quantity controls, total
-price calculation, and a simple checkout confirmation dialog.
+The app includes a mock login flow, product browsing, cart management, quantity controls, total price calculation, and a simulated checkout process.
 
 ## Features
 
-* Mock login with email and password validation
-* Home screen with a collection of products
-* Add products to cart
-* Increase and decrease product quantity
-* Remove products from cart
-* Automatic total price calculation
-* Cart state preserved while navigating between screens
-* Empty cart state
-* Simple checkout confirmation dialog
-* Cart is cleared after checkout
+- Mock login with email and password validation
+- Login loading state
+- Home screen displaying a collection of products
+- Add products to cart
+- Increase and decrease product quantities
+- Remove products from cart
+- Automatic total price calculation
+- Shared cart state between Home and Cart screens
+- Empty cart state
+- Checkout confirmation dialog
+- Cart cleared after checkout confirmation
 
 ## Tech Stack
 
-* Flutter
-* Dart
-* Material Design
+- Flutter
+- Dart
+- Material Design
+- Flutter Bloc (Cubit)
+- Provider
 
 ## Architecture
 
-The project uses a simple feature-based structure to keep the code organized without adding
-unnecessary complexity for a small application.
+The project follows a simple feature-based structure, keeping related screens, state management, and UI components organized by feature.
 
 ```text
 lib/
 ├── core/
 │   ├── theme/
+│   │   └── app_color.dart
 │   └── widgets/
+│       ├── custom_button.dart
+│       ├── custom_text.dart
+│       └── custom_textfield.dart
 ├── features/
 │   ├── auth/
+│   │   ├── login_screen.dart
+│   │   ├── login_cubit.dart
+│   │   └── login_state.dart
 │   ├── home/
+│   │   ├── home_screen.dart
+│   │   └── widgets/
+│   │       └── product_card_item.dart
 │   └── cart/
+│       ├── cart_screen.dart
+│       └── cart_provider.dart
 └── main.dart
 ```
 
 ## State Management
 
-No external state management package was used.
+The application uses Cubit and Provider for different responsibilities.
 
-The cart state is managed locally inside the `HomeScreen` using a list of products.
+### Login — Cubit
 
-The cart is passed to the `CartScreen`, where quantity updates, product removal, total calculation,
-and checkout actions are handled.
+`LoginCubit` manages the login flow using the following states:
 
-This approach was chosen because the application is small and does not require the additional
-complexity of Provider, BLoC, or another state management solution.
+- `LoginInitial`: Initial state
+- `LoginLoading`: Login is in progress
+- `LoginSuccess`: Login succeeds when both fields are non-empty
+- `LoginError`: Represents a login validation error
+
+`BlocBuilder` updates the UI according to the current state, while `BlocListener` handles navigation and error messages.
+
+Authentication is mocked; no real authentication service or backend is connected.
+
+### Cart — Provider
+
+`CartProvider` extends `ChangeNotifier` and manages the shared cart data.
+
+It handles:
+
+- Adding products to the cart
+- Increasing and decreasing quantities
+- Removing products
+- Clearing the cart
+- Calculating the total price
+
+`notifyListeners()` notifies listening widgets when the cart changes. The `CartScreen` uses `context.watch<CartProvider>()` to rebuild when the cart data updates, while `context.read<CartProvider>()` is used to execute actions without listening for changes.
+
+The provider is registered above the `MaterialApp`, allowing the Home and Cart screens to access the same cart state while navigating between them.
 
 ## Technical Decisions
 
-* **Mock Authentication:** No real backend is required for the login flow.
-* **Local Cart State:** The cart is managed locally using Flutter's `setState`.
-* **Feature-Based Structure:** Related screens and widgets are grouped by feature.
-* **Reusable Widgets:** Common UI elements such as buttons and text widgets are reused.
-* **Mock Checkout:** Checkout is simulated using a confirmation dialog.
+- **Mock Authentication:** Real authentication was outside the scope of the assignment.
+- **Cubit for Login:** Separates login state and business logic from the UI.
+- **Provider for Cart:** Shares cart data across screens and centralizes cart operations.
+- **Feature-Based Structure:** Groups related files by application feature.
+- **Reusable Widgets:** Common UI elements, including buttons and text widgets, are reused.
+- **Mock Checkout:** A confirmation dialog simulates a successful order; no real payment is processed.
 
 ## Challenges
 
-The main challenge was keeping the cart data consistent while navigating between the Home and Cart
-screens.
+One of the main challenges was keeping cart data consistent between the Home and Cart screens.
 
-The cart is maintained in the Home screen and passed to the Cart screen, allowing quantity changes
-and removals to update the same cart data.
+This was addressed by moving cart management into `CartProvider`, allowing both screens to access the same data and react to changes.
+
+Another consideration was managing different login states and displaying a loading indicator while the mock login process runs.
 
 ## Production Improvements
 
-If this application were developed for production, I would add:
+If the application were developed for production, I would consider adding:
 
-* Real authentication
-* Backend API integration
-* Database integration
-* Proper product and cart models
-* Dedicated state management
-* Persistent cart storage
-* Real payment integration
-* Loading and error states
-* Unit and widget testing
-* Product search and filtering
+- Real authentication and secure session handling
+- Backend API integration
+- Database integration
+- Dedicated product and cart models
+- Persistent cart storage
+- Real payment integration
+- Improved error handling
+- Unit and widget testing
+- Product search and filtering
 
 ## Getting Started
 
 Make sure Flutter is installed and configured correctly.
 
-Install the project dependencies:
+Install project dependencies:
 
 ```bash
 flutter pub get
@@ -100,17 +134,4 @@ Run the application:
 flutter run
 ```
 
-## Demo
-
-The demo demonstrates:
-
-1. Login
-2. Browsing products
-3. Adding products to the cart
-4. Changing quantities
-5. Removing products
-6. Viewing the total
-7. Completing checkout
-8. Clearing the cart after checkout
-
-Built with Flutter and Dart.
+Built with Flutter and Dart for the AfaaqWare Flutter assignment.

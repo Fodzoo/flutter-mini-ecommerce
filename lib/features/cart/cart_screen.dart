@@ -1,67 +1,31 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'package:task1/core/theme/app_color.dart';
 import 'package:task1/core/widgets/custom_button.dart';
 import 'package:task1/core/widgets/custom_text.dart';
+import 'cart_provider.dart';
 
 class CartScreen extends StatefulWidget {
-  final List<Map<String, dynamic>> cart;
-
-  const CartScreen({super.key, required this.cart});
+  const CartScreen({super.key});
 
   @override
   State<CartScreen> createState() => _CartScreenState();
 }
 
 class _CartScreenState extends State<CartScreen> {
-  void increaseQuantity(int index) {
-    setState(() {
-      widget.cart[index]['quantity']++;
-    });
-  }
-
-  void decreaseQuantity(int index) {
-    setState(() {
-      if (widget.cart[index]['quantity'] > 1) {
-        widget.cart[index]['quantity']--;
-      }
-    });
-  }
-
-  void removeProduct(int index) {
-    setState(() {
-      widget.cart.removeAt(index);
-    });
-  }
-
-  double getTotal() {
-    double total = 0;
-
-    for (var product in widget.cart) {
-      total += product['price'] * product['quantity'];
-    }
-
-    return total;
-  }
-
   void checkout() {
     showDialog(
       context: context,
       builder: (context) {
         return AlertDialog(
           title: const Text('Order Confirmed'),
-
           content: const Text('Your order has been placed successfully.'),
-
           actions: [
             TextButton(
               onPressed: () {
                 Navigator.pop(context);
-
-                setState(() {
-                  widget.cart.clear();
-                });
+                context.read<CartProvider>().clearCart();
               },
-
               child: Text('OK', style: TextStyle(color: AppColors.primary)),
             ),
           ],
@@ -72,11 +36,12 @@ class _CartScreenState extends State<CartScreen> {
 
   @override
   Widget build(BuildContext context) {
+    final cartProvider = context.watch<CartProvider>();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: AppColors.primary,
         foregroundColor: Colors.white,
-
         title: const CustomText(
           text: 'Cart',
           size: 22,
@@ -85,7 +50,7 @@ class _CartScreenState extends State<CartScreen> {
         ),
       ),
 
-      body: widget.cart.isEmpty
+      body: cartProvider.cart.isEmpty
           ? const Center(
               child: CustomText(
                 text: 'Your cart is empty',
@@ -101,16 +66,17 @@ class _CartScreenState extends State<CartScreen> {
                     padding: const EdgeInsets.all(16),
 
                     children: [
-                      for (int index = 0; index < widget.cart.length; index++)
+                      for (
+                        int index = 0;
+                        index < cartProvider.cart.length;
+                        index++
+                      )
                         Container(
                           margin: const EdgeInsets.only(bottom: 12),
-
                           padding: const EdgeInsets.all(12),
-
                           decoration: BoxDecoration(
                             color: Colors.white,
                             borderRadius: BorderRadius.circular(16),
-
                             boxShadow: [
                               BoxShadow(
                                 color: Colors.grey.shade200,
@@ -125,14 +91,13 @@ class _CartScreenState extends State<CartScreen> {
                               Container(
                                 width: 80,
                                 height: 80,
-
                                 decoration: BoxDecoration(
                                   color: Colors.grey.shade100,
                                   borderRadius: BorderRadius.circular(12),
                                 ),
 
                                 child: Image.asset(
-                                  widget.cart[index]['image'],
+                                  cartProvider.cart[index]['image'],
                                   fit: BoxFit.contain,
                                 ),
                               ),
@@ -142,10 +107,9 @@ class _CartScreenState extends State<CartScreen> {
                               Expanded(
                                 child: Column(
                                   crossAxisAlignment: CrossAxisAlignment.start,
-
                                   children: [
                                     CustomText(
-                                      text: widget.cart[index]['name'],
+                                      text: cartProvider.cart[index]['name'],
                                       size: 16,
                                       weight: FontWeight.bold,
                                       color: Colors.black,
@@ -154,7 +118,8 @@ class _CartScreenState extends State<CartScreen> {
                                     const SizedBox(height: 6),
 
                                     CustomText(
-                                      text: '\$${widget.cart[index]['price']}',
+                                      text:
+                                          '\$${cartProvider.cart[index]['price']}',
                                       size: 15,
                                       weight: FontWeight.w600,
                                       color: AppColors.primary,
@@ -166,7 +131,9 @@ class _CartScreenState extends State<CartScreen> {
                                       children: [
                                         IconButton(
                                           onPressed: () {
-                                            decreaseQuantity(index);
+                                            cartProvider.decreaseQuantity(
+                                              index,
+                                            );
                                           },
 
                                           icon: const Icon(Icons.remove),
@@ -174,7 +141,7 @@ class _CartScreenState extends State<CartScreen> {
 
                                         CustomText(
                                           text:
-                                              '${widget.cart[index]['quantity']}',
+                                              '${cartProvider.cart[index]['quantity']}',
                                           size: 16,
                                           weight: FontWeight.bold,
                                           color: Colors.black,
@@ -182,7 +149,9 @@ class _CartScreenState extends State<CartScreen> {
 
                                         IconButton(
                                           onPressed: () {
-                                            increaseQuantity(index);
+                                            cartProvider.increaseQuantity(
+                                              index,
+                                            );
                                           },
 
                                           icon: const Icon(Icons.add),
@@ -195,7 +164,7 @@ class _CartScreenState extends State<CartScreen> {
 
                               IconButton(
                                 onPressed: () {
-                                  removeProduct(index);
+                                  cartProvider.removeProduct(index);
                                 },
 
                                 icon: const Icon(
@@ -239,7 +208,8 @@ class _CartScreenState extends State<CartScreen> {
                           ),
 
                           CustomText(
-                            text: '\$${getTotal().toStringAsFixed(2)}',
+                            text:
+                                '\$${cartProvider.getTotal().toStringAsFixed(2)}',
                             size: 20,
                             weight: FontWeight.bold,
                             color: AppColors.primary,
